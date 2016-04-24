@@ -11,6 +11,12 @@ import UIKit
 class ItemsViewController: UITableViewController {
     
     var itemStore: ItemStore!
+    var imageStore: ImageStore!
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        navigationItem.leftBarButtonItem = editButtonItem()
+    }
     
     @IBAction func addNewItem(sender: AnyObject) {
         // create a new item and add it to the store
@@ -25,32 +31,8 @@ class ItemsViewController: UITableViewController {
         }
     }
     
-    @IBAction func toggleEditingMode(sender: AnyObject) {
-        // if you are currently in editing mode..
-        if editing {
-            // change the text of button to inform user of state
-            sender.setTitle("Edit", forState: .Normal)
-            
-            // turn off editing mode
-            setEditing(false, animated: true)
-        } else {
-            // change text of button to inform user of state
-            sender.setTitle("Done", forState: .Normal)
-            
-            // enter editing mode
-            setEditing(true, animated: true)
-        }
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        // Get the height of the status bar
-        let statusBarHeight = UIApplication.sharedApplication().statusBarFrame.height
-        
-        let insets = UIEdgeInsets(top: statusBarHeight, left: 0, bottom: 0, right: 0)
-        tableView.contentInset = insets
-        tableView.scrollIndicatorInsets = insets
         
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 65
@@ -106,6 +88,9 @@ class ItemsViewController: UITableViewController {
                 // Remove the item from the store
                 self.itemStore.removeItem(item)
                 
+                // remove the items image from the image store
+                self.imageStore.deleteImageForKey(item.itemKey)
+                
                 // also remove that row from the table view with an animation
                 self.tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
             })
@@ -132,6 +117,7 @@ class ItemsViewController: UITableViewController {
                 let item = itemStore.allItems[row]
                 let detailViewController = segue.destinationViewController as! DetailViewController
                 detailViewController.item = item
+                detailViewController.imageStore = imageStore
             }
         }
     }
